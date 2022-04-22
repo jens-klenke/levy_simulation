@@ -5,6 +5,9 @@ pacman::p_load(dplyr,
                purrr,
                magick,
                dplyr,
-               tidyr)
+               tidyr,
+               provenance, # Kolmogrov-Smirnov distance
+               VGAM # Riemann's Zeta Function
+               )
 
 
