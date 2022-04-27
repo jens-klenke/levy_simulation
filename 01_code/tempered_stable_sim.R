@@ -129,9 +129,26 @@ alpha <- 1.5
 Delta <- 1
 a <- 1
 b <- 1
+lambda_1 <- 1
+lambda_2 <- 1
+
+# random variables 
+pois_comp <- rpois(n = 1, lambda = 1)
+U <- runif(1)
+E_1 <- rexp(1)
+E_4 <- rexp(1) 
+E_2 <- rexp(1, rate = b *lambda_1)
+E_3 <- rgamma(1, shape = lambda_1, scale = b * lambda_2)
 
 gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
-  
+
+k = 1 # k; number of series?
+
+min(
+((alpha* pois_comp)/ Delta* a)^(-1 / alpha), 
+(E_1 * U^(1/alpha) /b))
+
+- ((alpha* k) / Delta * a)^(-1 / alpha)
   
   
    
