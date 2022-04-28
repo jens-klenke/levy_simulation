@@ -138,7 +138,7 @@ U <- runif(1)
 E_1 <- rexp(1)
 E_4 <- rexp(1) 
 E_2 <- rexp(1, rate = b *lambda_1)
-E_3 <- rgamma(1, shape = lambda_1, scale = b * lambda_2)
+E_3 <- rgamma(1, shape = lambda_1, scale = (b * lambda_2)^(-1))
 
 gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
 
