@@ -160,7 +160,7 @@ sum(
 N <- 100
 Y <- rep(NA, N)
 k = 1000 # k; number of series
-alpha <- 1.5
+alpha <- 0.5
 Delta <- 1
 a <- 1
 b <- 1
@@ -172,11 +172,11 @@ for (i in seq_len(N)) {
   pois_comp <- rpois(n = k, lambda = 1) # is standard 1?
   U <- runif(k)
   E_1 <- rexp(k)
-  E_4 <- rexp(k) 
-  E_2 <- rexp(k, rate = b *lambda_1)
-  E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
+#  E_4 <- rexp(k) 
+ # E_2 <- rexp(k, rate = b *lambda_1)
+#  E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
   
-  # computation of 5.2
+  # computation #of 5.2
   Y[i] <- sum( 
     # min of first part 
     pmin( 
