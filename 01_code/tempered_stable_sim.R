@@ -125,6 +125,7 @@ hist(sim_v)
 ##---- serial representation  ----
 
 # parameters
+k = 2 # k; number of series?
 alpha <- 1.5
 Delta <- 1
 a <- 1
@@ -133,24 +134,55 @@ lambda_1 <- 1
 lambda_2 <- 1
 
 # random variables 
-pois_comp <- rpois(n = 1, lambda = 1)
-U <- runif(1)
-E_1 <- rexp(1)
-E_4 <- rexp(1) 
-E_2 <- rexp(1, rate = b *lambda_1)
-E_3 <- rgamma(1, shape = lambda_1, scale = (b * lambda_2)^(-1))
+pois_comp <- rpois(n = k, lambda = 1) # is standard 1?
+U <- runif(k)
+E_1 <- rexp(k)
+E_4 <- rexp(k) 
+E_2 <- rexp(k, rate = b *lambda_1)
+E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
 
+# not needed
 gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
 
-k = 1 # k; number of series?
-
-min(
+# computation of 5.2
+sum( 
+  # min of first part 
+  pmin( 
 ((alpha* pois_comp)/ Delta* a)^(-1 / alpha), 
-(E_1 * U^(1/alpha) /b))
-
-- ((alpha* k) / Delta * a)^(-1 / alpha)
+(E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha))
   
+
+
+
+
+#----- looop serial representation----
+# parameters
+N <- 100
+Y <- rep(NA, N)
+k = 1000 # k; number of series
+alpha <- 1.5
+Delta <- 1
+a <- 1
+b <- 1
+lambda_1 <- 1
+lambda_2 <- 1
+
+for (i in seq_len(N)) {
+  # random variables 
+  pois_comp <- rpois(n = k, lambda = 1) # is standard 1?
+  U <- runif(k)
+  E_1 <- rexp(k)
+  E_4 <- rexp(k) 
+  E_2 <- rexp(k, rate = b *lambda_1)
+  E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
   
-   
+  # computation of 5.2
+  Y[i] <- sum( 
+    # min of first part 
+    pmin( 
+      ((alpha* pois_comp)/ Delta* a)^(-1 / alpha), 
+      (E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha)) # k as a vector
+  
+}
 
-
+Y
