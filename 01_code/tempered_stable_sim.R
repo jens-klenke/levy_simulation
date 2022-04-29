@@ -169,7 +169,7 @@ lambda_2 <- 1
 
 for (i in seq_len(N)) {
   # random variables 
-  pois_comp <- rpois(n = k, lambda = 1) # is standard 1?
+  pois_comp <- rpois(n = k, lambda = 1) # is standard 1? is wrong arrival times with exp random!
   U <- runif(k)
   E_1 <- rexp(k)
 #  E_4 <- rexp(k) 
@@ -186,3 +186,11 @@ for (i in seq_len(N)) {
 }
 
 Y
+
+
+# To do 
+# -> arrival times of Poisson process 
+# -> subordinator not subordinator version
+# -> + gamma delta needed
+
+# subordinator -> without centering part and withour gamma (delta) (which is on the left side) 
