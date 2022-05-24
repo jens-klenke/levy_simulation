@@ -121,9 +121,9 @@ tsd_algorithm_2 <- function(alpha, delta_a, a = 1, b = 1, c, N = 100){
 sim_v <- tsd_algorithm_2(alpha = 1.5, delta_a = 1, c = 0.06, N = 30000)
 hist(sim_v)
 
-
-##---- serial representation  ----
-
+#################################
+#---- serial representation ----#
+#################################
 # parameters
 k = 2 # k; number of series?
 alpha <- 1.5
@@ -134,21 +134,22 @@ lambda_1 <- 1
 lambda_2 <- 1
 
 # random variables 
-pois_comp <- rpois(n = k, lambda = 1) # is standard 1?
+#pois_comp <- rpois(n = k, lambda = 1) # is standard 1? # arrival times of a poisson process not poisson itself
+arrival_pois <- rexp(k)
 U <- runif(k)
 E_1 <- rexp(k)
 E_4 <- rexp(k) 
 E_2 <- rexp(k, rate = b *lambda_1)
 E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
 
-# not needed
+# 
 gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
 
 # computation of 5.2
 sum( 
   # min of first part 
   pmin( 
-((alpha* pois_comp)/ Delta* a)^(-1 / alpha), 
+((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
 (E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha))
   
 
@@ -166,10 +167,11 @@ a <- 1
 b <- 1
 lambda_1 <- 1
 lambda_2 <- 1
+gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
 
 for (i in seq_len(N)) {
   # random variables 
-  pois_comp <- rpois(n = k, lambda = 1) # is standard 1? is wrong arrival times with exp random!
+  arrival_pois <- rexp(k) # 
   U <- runif(k)
   E_1 <- rexp(k)
 #  E_4 <- rexp(k) 
@@ -180,7 +182,7 @@ for (i in seq_len(N)) {
   Y[i] <- sum( 
     # min of first part 
     pmin( 
-      ((alpha* pois_comp)/ Delta* a)^(-1 / alpha), 
+      ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
       (E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha)) # k as a vector
   
 }
@@ -189,8 +191,8 @@ Y
 
 
 # To do 
-# -> arrival times of Poisson process 
-# -> subordinator not subordinator version
+# -> arrival times of Poisson process ::: done 
+# -> 2 versions! subordinator not subordinator version
 # -> + gamma delta needed
 
-# subordinator -> without centering part and withour gamma (delta) (which is on the left side) 
+# subordinator -> without centering part and without gamma (delta) (which is on the left side) 
