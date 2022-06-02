@@ -3,8 +3,6 @@ source(here::here('00_packages/packages.R'))
 
 ## ---- simulation ----
 # On simulation of tempered stable random variates
-
-
 ## --- Algorithm 0 ----
 
 # simulation parameters
@@ -135,7 +133,10 @@ lambda_2 <- 1
 
 # random variables 
 #pois_comp <- rpois(n = k, lambda = 1) # is standard 1? # arrival times of a poisson process not poisson itself
-arrival_pois <- rexp(k)
+#arrival_pois <- cumsum(rexp(k)) # cumsum
+arrival_gamma <- rgamma(k, shape = 1) # shape = 1, equals standard posssion process?
+
+
 U <- runif(k)
 E_1 <- rexp(k)
 E_4 <- rexp(k) 
@@ -149,7 +150,7 @@ gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gam
 sum( 
   # min of first part 
   pmin( 
-((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+((alpha* arrival_gamma)/ Delta* a)^(-1 / alpha), 
 (E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha))
   
 
@@ -167,13 +168,18 @@ a <- 1
 b <- 1
 lambda_1 <- 1
 lambda_2 <- 1
+
+
 gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
 
 for (i in seq_len(N)) {
   # random variables 
-  arrival_pois <- rexp(k) # 
+#  arrival_pois <- rexp(k) # 
   U <- runif(k)
   E_1 <- rexp(k)
+  arrival_gamma <- rgamma(k, shape = 1)
+  arrival_pois <- cumsum(rexp(k))
+  
 #  E_4 <- rexp(k) 
  # E_2 <- rexp(k, rate = b *lambda_1)
 #  E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
@@ -182,9 +188,10 @@ for (i in seq_len(N)) {
   Y[i] <- sum( 
     # min of first part 
     pmin( 
-      ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
-      (E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha)) # k as a vector
-  
+      ((alpha* arrival_gamma)/ Delta* a)^(-1 / alpha), 
+      (E_1 * U^(1/alpha) /b)))
+# centering not needed in Subordinator 
+#  - ((alpha* 1:k) / Delta * a)^(-1 / alpha)
 }
 
 Y
