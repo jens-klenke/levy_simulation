@@ -161,7 +161,7 @@ sum(
 # parameters
 N <- 100
 Y <- rep(NA, N)
-k = 1000 # k; number of series
+k <- 1e+06 # k; number of series
 alpha <- 0.5
 Delta <- 1
 a <- 1
@@ -177,24 +177,66 @@ for (i in seq_len(N)) {
 #  arrival_pois <- rexp(k) # 
   U <- runif(k)
   E_1 <- rexp(k)
-  arrival_gamma <- rgamma(k, shape = 1)
   arrival_pois <- cumsum(rexp(k))
-  
-#  E_4 <- rexp(k) 
- # E_2 <- rexp(k, rate = b *lambda_1)
-#  E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
   
   # computation #of 5.2
   Y[i] <- sum( 
     # min of first part 
     pmin( 
-      ((alpha* arrival_gamma)/ Delta* a)^(-1 / alpha), 
-      (E_1 * U^(1/alpha) /b)))
+      ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+      (E_1 * U^(1/alpha) /b)
+      )
+    )
 # centering not needed in Subordinator 
-#  - ((alpha* 1:k) / Delta * a)^(-1 / alpha)
+# - ((alpha* 1:k) / Delta * a)^(-1 / alpha)
 }
 
 Y
+
+
+
+
+#### function ####
+
+serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04){
+  
+  # empty vector
+  Y <- rep(NA, N)
+  
+  # simulation
+  for (i in seq_len(N)) {
+      # random variables 
+      U <- runif(k)
+      E_1 <- rexp(k)
+      arrival_pois <- cumsum(rexp(k))
+    
+    # computation #of 5.2
+      Y[i] <- sum(
+        # min of first part 
+        pmin( 
+          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+          (E_1 * U^(1/alpha) /b)
+        )
+    )
+    
+  }
+  
+  if(1 == abs(Delta)){
+    gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
+    
+    centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
+    
+    # correction
+    Y <- Y - centering + gamma_delta
+  }
+  
+  return(Y)
+}
+
+
+try_pos <- serial_sim(alpha = 0.9, Delta = 0.5)
+
+hist(try_pos)
 
 
 # To do 
@@ -203,3 +245,15 @@ Y
 # -> + gamma delta needed
 
 # subordinator -> without centering part and without gamma (delta) (which is on the left side) 
+
+
+
+
+
+
+
+
+#### not needed
+# E_4 <- rexp(k) 
+# E_2 <- rexp(k, rate = b *lambda_1)
+# E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
