@@ -159,8 +159,8 @@ sum(
 
 #----- looop serial representation----
 # parameters
-N <- 100
-Y <- rep(NA, N)
+N <- 100 # 
+Y <- rep(NA, N) # vector to store 
 k <- 1e+06 # k; number of series
 alpha <- 0.5
 Delta <- 1
@@ -170,97 +170,76 @@ lambda_1 <- 1
 lambda_2 <- 1
 
 
-gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
-
-for (i in seq_len(N)) {
-  # random variables 
-#  arrival_pois <- rexp(k) # 
-  U <- runif(k)
-  E_1 <- rexp(k)
-  arrival_pois <- cumsum(rexp(k))
-  
-  # computation #of 5.2
-  Y[i] <- sum( 
-    # min of first part 
-    pmin( 
-      ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
-      (E_1 * U^(1/alpha) /b)
-      )
-    )
-# centering not needed in Subordinator 
-# - ((alpha* 1:k) / Delta * a)^(-1 / alpha)
-}
-
-Y
-
-
-
 
 #### function ####
-serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04, seed = NULL){
+serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04){
   
   # empty vector
   Y <- rep(NA, N)
   
-  # simulation
-  for (i in seq_len(N)){
-    # seed 
-    if (!is.null(seed) ) {
-      set.seed(seed*i)
-    }
-
-    # random variables 
-    U <- runif(k)
-    E_1 <- rexp(k)
-    # arrival times of a Poisson process
-    arrival_pois <- cumsum(rexp(k))
-    
-    # computation #of 5.2
-    Y[i] <- sum(
-      # min of first part 
-      pmin( 
-        ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
-        (E_1 * U^(1/alpha) /b)
+  ##### subordinator #####
+  if (1 == abs(Delta)) {
+    # simulation
+    for (i in seq_len(N)){
+      # random variables 
+      U <- runif(k)
+      E_1 <- rexp(k)
+      # arrival times of a Poisson process
+      arrival_pois <- cumsum(rexp(k))
+      
+      # computation #of 5.2
+      Y[i] <- sum(
+        # min of first part 
+        pmin( 
+          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+          (E_1 * U^(1/alpha) /b)
+        )
       )
-    )
-    
+      
+    }
   }
   
-  # Correction
-  
-  if(1 != abs(Delta)){
+  if (1 != abs(Delta)) {
+    # correction terms 
     gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
-    
     centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
     
-    # correction
-    Y <- Y - centering + gamma_delta
+    # simulation
+    for (i in seq_len(N)){
+      # random variables 
+      U <- runif(k)
+      E_1 <- rexp(k)
+      # arrival times of a Poisson process
+      arrival_pois <- cumsum(rexp(k))
+      
+      # computation #of 5.2
+      Y[i] <- sum(
+        # min of first part 
+        (pmin( 
+          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+          (E_1 * U^(1/alpha) /b)
+        ) 
+        ###### Correction ######
+        - centering + gamma_delta ) 
+        
+      )
+    }
   }
-  
   return(Y)
 }
 
 
-try_pos <- serial_sim(alpha = 0.9, Delta = 0.5, seed = 123456)
+
+try_pos <- serial_sim(alpha = 0.4, Delta = 1, N = 1e5)
 
 hist(try_pos)
 
-
-# To do 
-# -> arrival times of Poisson process ::: done 
-# -> 2 versions! subordinator not subordinator version
-# -> + gamma delta needed
-
 # subordinator -> without centering part and without gamma (delta) (which is on the left side) 
 
+# Problems 
+# gamma(1 - alpha) -> NANs if alpha = 1 
 
 
 
 
 
-
-
-#### not needed
-# E_4 <- rexp(k) 
-# E_2 <- rexp(k, rate = b *lambda_1)
-# E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
