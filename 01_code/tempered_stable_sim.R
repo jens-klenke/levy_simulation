@@ -197,34 +197,38 @@ Y
 
 
 #### function ####
-
-serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04){
+serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04, seed = NULL){
   
   # empty vector
   Y <- rep(NA, N)
   
   # simulation
-  for (i in seq_len(N)) {
-      # random variables 
-      U <- runif(k)
-      E_1 <- rexp(k)
-      # arrival times of a Poisson process
-      arrival_pois <- cumsum(rexp(k))
+  for (i in seq_len(N)){
+    # seed 
+    if (!is.null(seed) ) {
+      set.seed(seed*i)
+    }
+
+    # random variables 
+    U <- runif(k)
+    E_1 <- rexp(k)
+    # arrival times of a Poisson process
+    arrival_pois <- cumsum(rexp(k))
     
     # computation #of 5.2
-      Y[i] <- sum(
-        # min of first part 
-        pmin( 
-          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
-          (E_1 * U^(1/alpha) /b)
-        )
+    Y[i] <- sum(
+      # min of first part 
+      pmin( 
+        ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+        (E_1 * U^(1/alpha) /b)
+      )
     )
     
   }
   
   # Correction
   
-  if(1 == abs(Delta)){
+  if(1 != abs(Delta)){
     gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
     
     centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
@@ -237,7 +241,7 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
 }
 
 
-try_pos <- serial_sim(alpha = 0.9, Delta = 0.5)
+try_pos <- serial_sim(alpha = 0.9, Delta = 0.5, seed = 123456)
 
 hist(try_pos)
 
