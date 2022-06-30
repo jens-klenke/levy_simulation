@@ -208,6 +208,7 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
       # random variables 
       U <- runif(k)
       E_1 <- rexp(k)
+      # arrival times of a Poisson process
       arrival_pois <- cumsum(rexp(k))
     
     # computation #of 5.2
@@ -220,6 +221,8 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
     )
     
   }
+  
+  # Correction
   
   if(1 == abs(Delta)){
     gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
