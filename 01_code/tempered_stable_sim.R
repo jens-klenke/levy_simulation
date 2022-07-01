@@ -272,6 +272,13 @@ sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
   return(Y)
 } 
 
-try_1 <- sub_serial_sim(alpha = 0.1, Delta = 1, a = 0.5, b = 0.1)
+try_1 <- sub_serial_sim(alpha = 0.1, Delta = 1, a = 1, b = 1, N = 1e5)
 
-hist(try_1)
+hist(try_1, xlim = c(0, 10), breaks = 100)
+
+
+
+
+# which Parameter does what?
+# Delta -> stepsize -> 1 standard
+# alpha, alpha or beta parameter of alpha/beta stable distribution
