@@ -177,9 +177,9 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
   # empty vector
   Y <- rep(NA, N)
   #############################################
-  ############### subordinator ################
+  ############### Time difference = 1 ################
   #############################################
-  if (1 == abs(Delta)) {
+  if (1 < alpha) {
     # simulation
     for (i in seq_len(N)){
       # random variables 
@@ -192,7 +192,7 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
       Y[i] <- sum(
         # min of first part 
         pmin( 
-          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
+          ((alpha* arrival_pois)/ Delta*a)^(-1 / alpha), 
           (E_1 * U^(1/alpha) /b)
         )
       )
@@ -200,9 +200,9 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
     }
   }
   #############################################
-  ############## No subordinator ##############
+  ############## Delta -> time difference ##############
   #############################################
-  if (1 != abs(Delta)) {
+  if (1 < alpha) {
     # correction terms 
     gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
     centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
@@ -223,9 +223,10 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
           (E_1 * U^(1/alpha) /b)
         ) 
         ###### Correction ######
-        - centering + gamma_delta ) 
+        - centering) 
         
       )
+      Y <- Y + gamma_delta
     }
   }
   return(Y)
@@ -233,16 +234,44 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
 
 
 
-try_pos <- serial_sim(alpha = 0.4, Delta = 1, N = 1e4)
+try_pos <- serial_sim(alpha = 0.5, Delta = 1, N = 1e2)
 
 hist(try_pos)
 
 # subordinator -> without centering part and without gamma (delta) (which is on the left side) 
 
 # Problems 
-# gamma(1 - alpha) -> NANs if alpha = 1 
+# gamma(1 - alpha) -> NANs if alpha = 1  -> alpha nicht 1
 
 
 
 
 
+#2  functions -> subordinator
+
+sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
+  # empty vector
+  Y <- rep(NA, N)
+    # simulation
+    for (i in seq_len(N)){
+      # random variables 
+      U <- runif(k)
+      E_1 <- rexp(k)
+      # arrival times of a Poisson process
+      arrival_pois <- cumsum(rexp(k))
+      
+      # computation #of 5.2
+      Y[i] <- sum(
+        # min of first part 
+        pmin( 
+          ((alpha* arrival_pois)/ Delta*a)^(-1 / alpha), 
+          ((E_1 * U^(1/alpha)) /b)
+        )
+      )
+    }
+  return(Y)
+} 
+
+try_1 <- sub_serial_sim(alpha = 0.1, Delta = 1, a = 0.5, b = 0.1)
+
+hist(try_1)
