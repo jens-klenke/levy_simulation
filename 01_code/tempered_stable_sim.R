@@ -176,8 +176,9 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
   
   # empty vector
   Y <- rep(NA, N)
-  
-  ##### subordinator #####
+  #############################################
+  ############### subordinator ################
+  #############################################
   if (1 == abs(Delta)) {
     # simulation
     for (i in seq_len(N)){
@@ -198,7 +199,9 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
       
     }
   }
-  
+  #############################################
+  ############## No subordinator ##############
+  #############################################
   if (1 != abs(Delta)) {
     # correction terms 
     gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
@@ -230,7 +233,7 @@ serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N
 
 
 
-try_pos <- serial_sim(alpha = 0.4, Delta = 1, N = 1e5)
+try_pos <- serial_sim(alpha = 0.4, Delta = 1, N = 1e4)
 
 hist(try_pos)
 
