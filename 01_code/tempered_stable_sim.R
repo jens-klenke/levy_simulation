@@ -170,83 +170,6 @@ lambda_1 <- 1
 lambda_2 <- 1
 
 
-
-#### function ####
-serial_sim <- function(alpha, Delta, a = 1, b = 1, lambda_1 = 1, lambda_2 = 1, N = 100, k = 1e+04){
-  
-  # empty vector
-  Y <- rep(NA, N)
-  #############################################
-  ############### Time difference = 1 ################
-  #############################################
-  if (1 < alpha) {
-    # simulation
-    for (i in seq_len(N)){
-      # random variables 
-      U <- runif(k)
-      E_1 <- rexp(k)
-      # arrival times of a Poisson process
-      arrival_pois <- cumsum(rexp(k))
-      
-      # computation #of 5.2
-      Y[i] <- sum(
-        # min of first part 
-        pmin( 
-          ((alpha* arrival_pois)/ Delta*a)^(-1 / alpha), 
-          (E_1 * U^(1/alpha) /b)
-        )
-      )
-      
-    }
-  }
-  #############################################
-  ############## Delta -> time difference ##############
-  #############################################
-  if (1 < alpha) {
-    # correction terms 
-    gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
-    centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
-    
-    # simulation
-    for (i in seq_len(N)){
-      # random variables 
-      U <- runif(k)
-      E_1 <- rexp(k)
-      # arrival times of a Poisson process
-      arrival_pois <- cumsum(rexp(k))
-      
-      # computation #of 5.2
-      Y[i] <- sum(
-        # min of first part 
-        (pmin( 
-          ((alpha* arrival_pois)/ Delta* a)^(-1 / alpha), 
-          (E_1 * U^(1/alpha) /b)
-        ) 
-        ###### Correction ######
-        - centering) 
-        
-      )
-      Y <- Y + gamma_delta
-    }
-  }
-  return(Y)
-}
-
-
-
-try_pos <- serial_sim(alpha = 0.5, Delta = 1, N = 1e2)
-
-hist(try_pos)
-
-# subordinator -> without centering part and without gamma (delta) (which is on the left side) 
-
-# Problems 
-# gamma(1 - alpha) -> NANs if alpha = 1  -> alpha nicht 1
-
-
-
-
-
 #2  functions -> subordinator
 
 sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
@@ -274,7 +197,72 @@ sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
 
 try_1 <- sub_serial_sim(alpha = 0.1, Delta = 1, a = 1, b = 1, N = 1e5)
 
-hist(try_1, xlim = c(0, 10), breaks = 100)
+hist(try_1, breaks = 100)
+
+
+
+#### function ####
+serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
+  
+  # empty vector
+  Y <- rep(NA, N)
+
+  # correction terms 
+  gamma_delta <- ((Delta * a / alpha)^(1/alpha)) * VGAM::zeta((1/alpha)) - (Delta * gamma(1 - alpha) * a * b^(alpha - 1))
+  centering <- ((alpha* 1:k) / Delta * a)^(-1 / alpha)
+    
+  # simulation
+  for (i in seq_len(N)){
+    # random variables 
+    U <- runif(k)
+    E_1 <- rexp(k)
+    # arrival times of a Poisson process
+    arrival_pois <- cumsum(rexp(k))
+      
+      # computation #of 5.2
+    Y[i] <- sum(
+      # min of first part 
+      (pmin( 
+        ((alpha* arrival_pois)/ Delta*a)^(-1 / alpha), 
+        ((E_1 * U^(1/alpha)) /b)
+      )
+        ###### Correction ######
+        - centering) 
+        
+      )
+  }
+  
+  Y <- Y + gamma_delta
+  
+  return(Y)
+}
+
+try_serial <- serial_sim_fun(alpha = 1.5, Delta = 1, a = 1, b = 1, N = 1e4)
+
+hist(try_serial, breaks = 100)
+
+
+
+serial_sim <- function(alpha, Delta = 1, a_p = 1, b_p = 1, a_m = 1, b_m = 1, N = 1e02, k = 1e04){
+  
+  if (alpha > 2 | alpha <= 1) {
+    
+  }
+  
+  x_p <- serial_sim_fun(alpha = alpha, Delta = Delta, a = a_p, b = b_p, N = N)
+  
+  x_m <- serial_sim_fun(alpha = alpha, Delta = Delta, a = a_m, b = b_m, N = N)
+  
+  x = x_p - x_m
+  
+  return(x)
+  
+}
+
+
+try <- serial_sim(alpha = 1.2, N = 1e04)
+
+hist(try)
 
 
 
