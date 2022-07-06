@@ -124,12 +124,7 @@ hist(sim_v)
 #################################
 # parameters
 k = 2 # k; number of series?
-alpha <- 1.5
-Delta <- 1
-a <- 1
-b <- 1
-lambda_1 <- 1
-lambda_2 <- 1
+# a > 0 muss größer null sein
 
 # random variables 
 #pois_comp <- rpois(n = k, lambda = 1) # is standard 1? # arrival times of a poisson process not poisson itself
@@ -159,20 +154,16 @@ sum(
 
 #----- looop serial representation----
 # parameters
-N <- 100 # 
-Y <- rep(NA, N) # vector to store 
-k <- 1e+06 # k; number of series
-alpha <- 0.5
-Delta <- 1
-a <- 1
-b <- 1
-lambda_1 <- 1
-lambda_2 <- 1
-
-
 #2  functions -> subordinator
+# a > 0 muss größer null sein, Scaling property?
+
+
+
 
 sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
+  
+  if(alpha <= 0 | alpha >= 1) 
+    stop("'alpha' must be in ]0,1[")
   # empty vector
   Y <- rep(NA, N)
     # simulation
@@ -195,7 +186,7 @@ sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
   return(Y)
 } 
 
-try_1 <- sub_serial_sim(alpha = 0.1, Delta = 1, a = 1, b = 1, N = 1e5)
+try_1 <- sub_serial_sim(alpha = 0.9, Delta = 1, a = 1, b = 1, N = 1e6)
 
 hist(try_1, breaks = 100)
 
@@ -203,6 +194,8 @@ hist(try_1, breaks = 100)
 
 #### function ####
 serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
+  if(alpha >= 2 | alpha <= 1) 
+    stop("'alpha' must be in ]1,2[")
   
   # empty vector
   Y <- rep(NA, N)
@@ -237,7 +230,7 @@ serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
   return(Y)
 }
 
-try_serial <- serial_sim_fun(alpha = 1.5, Delta = 1, a = 1, b = 1, N = 1e4)
+try_serial <- serial_sim_fun(alpha = 1.0, Delta = 1, a = 1, b = 1, N = 1e1)
 
 hist(try_serial, breaks = 100)
 
