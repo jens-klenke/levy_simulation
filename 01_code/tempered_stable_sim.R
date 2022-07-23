@@ -123,42 +123,14 @@ hist(sim_v)
 #---- serial representation ----#
 #################################
 # parameters
-k = 2 # k; number of series?
+# k; number of series?
 # a > 0 muss größer null sein
-
-# random variables 
-#pois_comp <- rpois(n = k, lambda = 1) # is standard 1? # arrival times of a poisson process not poisson itself
-#arrival_pois <- cumsum(rexp(k)) # cumsum
-arrival_gamma <- rgamma(k, shape = 1) # shape = 1, equals standard posssion process?
-
-
-U <- runif(k)
-E_1 <- rexp(k)
-E_4 <- rexp(k) 
-E_2 <- rexp(k, rate = b *lambda_1)
-E_3 <- rgamma(k, shape = lambda_1, scale = (b * lambda_2)^(-1))
-
-# 
-gamma_delta <- (Delta * a / alpha)^(1/alpha) * VGAM::zeta(1/alpha) - Delta * gamma(1 - alpha) * a * b^(alpha - 1)
-
-# computation of 5.2
-sum( 
-  # min of first part 
-  pmin( 
-((alpha* arrival_gamma)/ Delta* a)^(-1 / alpha), 
-(E_1 * U^(1/alpha) /b)) - ((alpha* 1:k) / Delta * a)^(-1 / alpha))
-  
-
-
-
 
 #----- looop serial representation----
 # parameters
 #2  functions -> subordinator
 # a > 0 muss größer null sein, Scaling property?
-
-
-
+# b ?
 
 sub_serial_sim <- function(alpha, Delta = 1, a, b, N = 100, k = 1e02){
   
@@ -230,16 +202,16 @@ serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
   return(Y)
 }
 
-try_serial <- serial_sim_fun(alpha = 1.0, Delta = 1, a = 1, b = 1, N = 1e1)
+try_serial <- serial_sim_fun(alpha = 1.1, Delta = 1, a = 1, b = 1, N = 1e5)
 
 hist(try_serial, breaks = 100)
-
+hist(try_serial, xlim = c(-8, 8), breaks = 100)
 
 
 serial_sim <- function(alpha, Delta = 1, a_p = 1, b_p = 1, a_m = 1, b_m = 1, N = 1e02, k = 1e04){
   
   if (alpha > 2 | alpha <= 1) {
-    
+    stop("'alpha' must be in ]1,2[")
   }
   
   x_p <- serial_sim_fun(alpha = alpha, Delta = Delta, a = a_p, b = b_p, N = N)
@@ -253,11 +225,9 @@ serial_sim <- function(alpha, Delta = 1, a_p = 1, b_p = 1, a_m = 1, b_m = 1, N =
 }
 
 
-try <- serial_sim(alpha = 1.2, N = 1e04)
+try <- serial_sim(alpha = 1.2, N = 1e03)
 
 hist(try)
-
-
 
 
 # which Parameter does what?
