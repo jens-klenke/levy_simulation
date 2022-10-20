@@ -164,7 +164,7 @@ hist(try_1, breaks = 100)
 
 
 
-#### function ####
+#### function alpha' must be in ]1,2 ####
 serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
   if(alpha >= 2 | alpha <= 1) 
     stop("'alpha' must be in ]1,2[")
@@ -191,7 +191,7 @@ serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
         ((alpha* arrival_pois)/ Delta*a)^(-1 / alpha), 
         ((E_1 * U^(1/alpha)) /b)
       )
-        ###### Correction ######
+        ###### centering correction ######
         - centering) 
         
       )
@@ -201,6 +201,10 @@ serial_sim_fun <- function(alpha, Delta, a = 1, b = 1, N = 100, k = 1e+04){
   
   return(Y)
 }
+
+
+
+## balancing 
 
 try_serial <- serial_sim_fun(alpha = 1.1, Delta = 1, a = 1, b = 1, N = 1e5)
 
